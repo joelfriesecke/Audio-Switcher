@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2">
+  <file original="$AudioSwitcher___@general" source-language="en-US" target-language="de-DE" datatype="plaintext">
+    <body>
+      <group id="@general">
+        <trans-unit id="$AudioSwitcher___General___ResetDisplayNameTemplate" translate="yes">
+          <source>Reset %</source>
+          <target>Zurücksetzen %</target>
+        </trans-unit>
+      </group>
+      <group id="@modes">
+        <trans-unit id="$AudioSwitcher___ModeName___main" translate="yes">
+          <source>Main</source>
+          <target>Haupt</target>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+  <file original="$AudioSwitcher___main" source-language="en-US" target-language="de-DE" datatype="plaintext">
+    <body>
+      <group id="@commands">
+        <trans-unit id="$AudioSwitcher___Loupedeck.AudioSwitcherPlugin.SwitchAudioInputCommand" translate="yes">
+          <source>Audio Input</source>
+          <target>Audioeingang</target>
+        </trans-unit>
+        <trans-unit id="$AudioSwitcher___Loupedeck.AudioSwitcherPlugin.SwitchAudioInputCommand###description" translate="yes">
+          <source>Switch audio input device</source>
+          <target>Audioeingabegerät wechseln</target>
+        </trans-unit>
+        <trans-unit id="$AudioSwitcher___Loupedeck.AudioSwitcherPlugin.SwitchAudioOutputCommand" translate="yes">
+          <source>Audio Output</source>
+          <target>Audioausgang</target>
+        </trans-unit>
+        <trans-unit id="$AudioSwitcher___Loupedeck.AudioSwitcherPlugin.SwitchAudioOutputCommand###description" translate="yes">
+          <source>Switch audio output device</source>
+          <target>Audioausgabegerät wechseln</target>
+        </trans-unit>
+        <trans-unit id="$AudioSwitcher___#DynamicFolder" translate="yes">
+          <source>Dynamic Folder</source>
+          <target>Dynamischer Ordner</target>
+        </trans-unit>
+      </group>
+      <group id="@groups">
+        <trans-unit id="$AudioSwitcher___GroupName___5A402CE60D4379130005" translate="yes">
+          <source>Audio</source>
+          <target>Audio</target>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>
