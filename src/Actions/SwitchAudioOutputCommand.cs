@@ -1,6 +1,5 @@
 namespace Loupedeck.AudioSwitcherPlugin
 {
-    using System;
     using System.Collections.Generic;
     using AudioSwitcher.AudioApi;
     using AudioSwitcher.AudioApi.CoreAudio;
@@ -11,6 +10,7 @@ namespace Loupedeck.AudioSwitcherPlugin
         {
         }
 
-        protected override IEnumerable<CoreAudioDevice> GetDevices(CoreAudioController controller) => controller.GetPlaybackDevices(DeviceState.Active);
+        protected override IEnumerable<CoreAudioDevice> GetDevices(CoreAudioController controller) => 
+            controller.GetPlaybackDevices(DeviceState.Active);
     }
 }

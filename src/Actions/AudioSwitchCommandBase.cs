@@ -5,19 +5,24 @@ namespace Loupedeck.AudioSwitcherPlugin
     using AudioSwitcher.AudioApi;
     using AudioSwitcher.AudioApi.CoreAudio;
 
-    public abstract class AudioSwitchCommandBase : PluginDynamicCommand
+    public abstract class AudioSwitchCommandBase : ActionEditorCommand
     {
-        private CoreAudioController _controller;
-        private readonly Dictionary<String, CoreAudioDevice> _devices = new Dictionary<String, CoreAudioDevice>();
+        private const string DeviceControlName = "Device";
 
-        protected AudioSwitchCommandBase(String displayName, String description) : base()
+        private CoreAudioController _controller;
+        private readonly Dictionary<string, CoreAudioDevice> _devices = new Dictionary<string, CoreAudioDevice>();
+
+        protected AudioSwitchCommandBase(string displayName, string description)
         {
             this.DisplayName = displayName;
             this.Description = description;
             this.GroupName = "Audio";
 
+            this.ActionEditor.AddControlEx(
+                new ActionEditorListbox(DeviceControlName, "Select Device:"));
+            this.ActionEditor.ListboxItemsRequested += this.OnListboxItemsRequested;
+
             this.InitializeDevices();
-            this.MakeProfileAction("list;Select Device:");
         }
 
         protected abstract IEnumerable<CoreAudioDevice> GetDevices(CoreAudioController controller);
@@ -31,7 +36,6 @@ namespace Loupedeck.AudioSwitcherPlugin
                 {
                     var id = device.Id.ToString();
                     this._devices[id] = device;
-                    this.AddParameter(id, device.FullName, "Devices");
                 }
             }
             catch (Exception ex)
@@ -40,18 +44,34 @@ namespace Loupedeck.AudioSwitcherPlugin
             }
         }
 
-        protected override void RunCommand(String actionParameter)
+        private void OnListboxItemsRequested(object sender, ActionEditorListboxItemsRequestedEventArgs e)
         {
-            if (String.IsNullOrEmpty(actionParameter) || !this._devices.TryGetValue(actionParameter, out var device))
+            if (!e.ControlName.EqualsNoCase(DeviceControlName))
                 return;
+
+            foreach (var kvp in this._devices)
+            {
+                e.AddItem(kvp.Key, kvp.Value.FullName, kvp.Value.FullName);
+            }
+        }
+
+        protected override bool RunCommand(ActionEditorActionParameters actionParameters)
+        {
+            if (!actionParameters.TryGetString(DeviceControlName, out var deviceId))
+                return false;
+
+            if (!this._devices.TryGetValue(deviceId, out var device))
+                return false;
 
             try
             {
                 device.SetAsDefault();
+                return true;
             }
             catch (Exception ex)
             {
                 PluginLog.Error($"Switch failed: {ex.Message}");
+                return false;
             }
         }
     }
