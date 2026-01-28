@@ -10,7 +10,7 @@ namespace Loupedeck.AudioSwitcherPlugin
         {
         }
 
-        protected override IEnumerable<CoreAudioDevice> GetDevices(CoreAudioController controller) => 
-            controller.GetCaptureDevices(DeviceState.Active);
+        protected override IEnumerable<CoreAudioDevice> GetDevices() => 
+            AudioSwitcherPlugin.Instance.Controller.GetCaptureDevices(DeviceState.Active);
     }
 }

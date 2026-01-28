@@ -9,9 +9,6 @@ namespace Loupedeck.AudioSwitcherPlugin
     {
         private const string DeviceControlName = "Device";
 
-        private CoreAudioController _controller;
-        private readonly Dictionary<string, CoreAudioDevice> _devices = new Dictionary<string, CoreAudioDevice>();
-
         protected AudioSwitchCommandBase(string displayName, string description)
         {
             this.DisplayName = displayName;
@@ -21,37 +18,26 @@ namespace Loupedeck.AudioSwitcherPlugin
             this.ActionEditor.AddControlEx(
                 new ActionEditorListbox(DeviceControlName, "Select Device:"));
             this.ActionEditor.ListboxItemsRequested += this.OnListboxItemsRequested;
-
-            this.InitializeDevices();
         }
 
-        protected abstract IEnumerable<CoreAudioDevice> GetDevices(CoreAudioController controller);
-
-        private void InitializeDevices()
-        {
-            try
-            {
-                this._controller = new CoreAudioController();
-                foreach (var device in this.GetDevices(this._controller))
-                {
-                    var id = device.Id.ToString();
-                    this._devices[id] = device;
-                }
-            }
-            catch (Exception ex)
-            {
-                PluginLog.Error($"Init failed: {ex.Message}");
-            }
-        }
+        protected abstract IEnumerable<CoreAudioDevice> GetDevices();
 
         private void OnListboxItemsRequested(object sender, ActionEditorListboxItemsRequestedEventArgs e)
         {
             if (!e.ControlName.EqualsNoCase(DeviceControlName))
                 return;
 
-            foreach (var kvp in this._devices)
+            try
             {
-                e.AddItem(kvp.Key, kvp.Value.FullName, kvp.Value.FullName);
+                var devices = this.GetDevices();
+                foreach (var device in devices)
+                {
+                    e.AddItem(device.Id.ToString(), device.FullName, device.FullName);
+                }
+            }
+            catch (Exception ex)
+            {
+                PluginLog.Error($"Failed to list devices: {ex.Message}");
             }
         }
 
@@ -60,13 +46,26 @@ namespace Loupedeck.AudioSwitcherPlugin
             if (!actionParameters.TryGetString(DeviceControlName, out var deviceId))
                 return false;
 
-            if (!this._devices.TryGetValue(deviceId, out var device))
+            if (AudioSwitcherPlugin.Instance.Controller == null)
+            {
+                PluginLog.Error("Audio controller is not initialized");
                 return false;
+            }
 
             try
             {
-                device.SetAsDefault();
-                return true;
+                if (Guid.TryParse(deviceId, out var id))
+                {
+                    var device = AudioSwitcherPlugin.Instance.Controller.GetDevice(id);
+                    if (device != null)
+                    {
+                        device.SetAsDefault();
+                        return true;
+                    }
+                }
+                
+                PluginLog.Warning($"Device not found: {deviceId}");
+                return false;
             }
             catch (Exception ex)
             {
