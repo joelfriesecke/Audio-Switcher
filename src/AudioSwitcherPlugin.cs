@@ -1,6 +1,7 @@
 namespace Loupedeck.AudioSwitcherPlugin
 {
     using System;
+    using AudioSwitcher.AudioApi.CoreAudio;
 
     public class AudioSwitcherPlugin : Plugin
     {

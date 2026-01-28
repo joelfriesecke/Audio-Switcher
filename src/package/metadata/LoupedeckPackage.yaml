@@ -18,7 +18,7 @@ description: Switch your Windows default audio device with a single button press
 pluginFileName: AudioSwitcherPlugin.dll
 
 # Plugin version.
-version: 1.0.2
+version: 1.0.3
 
 # Author of the plugin. The author can be a company or an individual developer.
 author: Joel Friesecke

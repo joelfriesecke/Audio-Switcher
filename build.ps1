@@ -28,7 +28,7 @@ if ($LASTEXITCODE -ne 0) { Write-Error "Build failed."; exit 1 }
 # 3. Stage Files
 Write-Host "`n=== Staging Files ===" -ForegroundColor Cyan
 $metadataSrc = Join-Path $releaseDir "metadata"
-$binSrc = Join-Path $releaseDir "bin"
+$binSrc = Join-Path $releaseDir "win"
 $metadataDest = Join-Path $stagingDir "metadata"
 $binDest = Join-Path $stagingDir "win"
 
