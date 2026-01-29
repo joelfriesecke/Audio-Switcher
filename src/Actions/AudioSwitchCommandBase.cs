@@ -1,77 +1,94 @@
-namespace Loupedeck.AudioSwitcherPlugin
+namespace Loupedeck.AudioSwitcherPlugin;
+
+using System;
+using System.Collections.Generic;
+using AudioSwitcher.AudioApi;
+using AudioSwitcher.AudioApi.CoreAudio;
+
+public abstract class AudioSwitchCommandBase : ActionEditorCommand
 {
-    using System;
-    using System.Collections.Generic;
-    using AudioSwitcher.AudioApi;
-    using AudioSwitcher.AudioApi.CoreAudio;
+    private const String DeviceControlName = "Device";
+    private const String DeviceDisplayName = "Select Device:";
 
-    public abstract class AudioSwitchCommandBase : ActionEditorCommand
+    protected AudioSwitchCommandBase(String displayName, String description)
     {
-        private const string DeviceControlName = "Device";
+        this.DisplayName = displayName;
+        this.Description = description;
+        this.GroupName = "Audio";
 
-        protected AudioSwitchCommandBase(string displayName, string description)
+        this.ActionEditor.AddControlEx(
+            new ActionEditorListbox(DeviceControlName, DeviceDisplayName));
+        this.ActionEditor.ListboxItemsRequested += this.OnListboxItemsRequested;
+    }
+
+    protected abstract IEnumerable<CoreAudioDevice> GetDevices(CoreAudioController controller);
+
+    private void OnListboxItemsRequested(Object sender, ActionEditorListboxItemsRequestedEventArgs e)
+    {
+        if (!e.ControlName.EqualsNoCase(DeviceControlName))
         {
-            this.DisplayName = displayName;
-            this.Description = description;
-            this.GroupName = "Audio";
-
-            this.ActionEditor.AddControlEx(
-                new ActionEditorListbox(DeviceControlName, "Select Device:"));
-            this.ActionEditor.ListboxItemsRequested += this.OnListboxItemsRequested;
+            return;
         }
 
-        protected abstract IEnumerable<CoreAudioDevice> GetDevices(CoreAudioController controller);
-
-        private void OnListboxItemsRequested(object sender, ActionEditorListboxItemsRequestedEventArgs e)
+        try
         {
-            if (!e.ControlName.EqualsNoCase(DeviceControlName))
+            var controller = AudioSwitcherPlugin.Controller;
+            if (controller == null)
+            {
+                PluginLog.Error("CoreAudioController is null during device listing.");
                 return;
-
-            try
-            {
-                using (var controller = new CoreAudioController())
-                {
-                    var devices = this.GetDevices(controller);
-                    foreach (var device in devices)
-                    {
-                        e.AddItem(device.Id.ToString(), device.FullName, device.FullName);
-                    }
-                }
             }
-            catch (Exception ex)
+
+            var devices = this.GetDevices(controller);
+            if (devices == null)
             {
-                PluginLog.Error($"Failed to list devices: {ex.Message}");
+                return;
+            }
+
+            foreach (var device in devices)
+            {
+                e.AddItem(device.Id.ToString(), device.FullName, device.FullName);
             }
         }
-
-        protected override bool RunCommand(ActionEditorActionParameters actionParameters)
+        catch (Exception ex)
         {
-            if (!actionParameters.TryGetString(DeviceControlName, out var deviceId))
-                return false;
+            PluginLog.Error(ex, $"Failed to list devices: {ex.Message}");
+        }
+    }
 
-            try
+    protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
+    {
+        if (!actionParameters.TryGetString(DeviceControlName, out var deviceId))
+        {
+            return false;
+        }
+
+        try
+        {
+            var controller = AudioSwitcherPlugin.Controller;
+            if (controller == null)
             {
-                using (var controller = new CoreAudioController())
+                PluginLog.Error("CoreAudioController is null during switch.");
+                return false;
+            }
+
+            if (Guid.TryParse(deviceId, out var id))
+            {
+                var device = controller.GetDevice(id);
+                if (device != null)
                 {
-                    if (Guid.TryParse(deviceId, out var id))
-                    {
-                        var device = controller.GetDevice(id);
-                        if (device != null)
-                        {
-                            device.SetAsDefault();
-                            return true;
-                        }
-                    }
+                    device.SetAsDefault();
+                    return true;
                 }
-                
-                PluginLog.Warning($"Device not found: {deviceId}");
-                return false;
             }
-            catch (Exception ex)
-            {
-                PluginLog.Error($"Switch failed: {ex.Message}");
-                return false;
-            }
+            
+            PluginLog.Warning($"Device not found or invalid ID: {deviceId}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            PluginLog.Error(ex, $"Switch failed: {ex.Message}");
+            return false;
         }
     }
 }

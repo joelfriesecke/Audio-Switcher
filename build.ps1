@@ -14,7 +14,7 @@ if (-not (Get-Command "logiplugintool" -ErrorAction SilentlyContinue)) { Write-E
 
 # 1. Clean
 Write-Host "`n=== Cleaning ===" -ForegroundColor Cyan
-$dirsToClean = @("bin", "obj", $stagingDir)
+$dirsToClean = @("bin", "obj", $stagingDir, "src/bin", "src/obj")
 foreach ($dir in $dirsToClean) {
     if (Test-Path $dir) { Remove-Item $dir -Recurse -Force }
 }

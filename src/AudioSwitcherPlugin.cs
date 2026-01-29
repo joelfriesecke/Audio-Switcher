@@ -1,26 +1,41 @@
-namespace Loupedeck.AudioSwitcherPlugin
+namespace Loupedeck.AudioSwitcherPlugin;
+
+using System;
+using AudioSwitcher.AudioApi.CoreAudio;
+
+public class AudioSwitcherPlugin : Plugin
 {
-    using System;
-    using AudioSwitcher.AudioApi.CoreAudio;
+    public override Boolean UsesApplicationApiOnly => true;
+    public override Boolean HasNoApplication => true;
 
-    public class AudioSwitcherPlugin : Plugin
+    private static CoreAudioController _controller;
+
+    public static CoreAudioController Controller => _controller ??= new CoreAudioController();
+
+    public static void InvalidateController()
     {
-        public override Boolean UsesApplicationApiOnly => true;
-        public override Boolean HasNoApplication => true;
-
-        public AudioSwitcherPlugin()
+        try
         {
-            PluginLog.Init(this.Log);
-            PluginResources.Init(this.Assembly);
+            _controller?.Dispose();
         }
-
-        public override void Load()
+        catch
         {
         }
+        _controller = null;
+    }
 
-        public override void Unload()
-        {
-        }
+    public AudioSwitcherPlugin()
+    {
+        PluginLog.Init(this.Log);
+    }
+
+    public override void Load()
+    {
+        var _ = Controller;
+    }
+
+    public override void Unload()
+    {
+        InvalidateController();
     }
 }
-
