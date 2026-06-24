@@ -1,9 +1,6 @@
 namespace Loupedeck.AudioSwitcherPlugin;
 
 using System;
-using System.Collections.Generic;
-using AudioSwitcher.AudioApi;
-using AudioSwitcher.AudioApi.CoreAudio;
 
 public abstract class AudioSwitchCommandBase : ActionEditorCommand
 {
@@ -21,7 +18,7 @@ public abstract class AudioSwitchCommandBase : ActionEditorCommand
         this.ActionEditor.ListboxItemsRequested += this.OnListboxItemsRequested;
     }
 
-    protected abstract IEnumerable<CoreAudioDevice> GetDevices(CoreAudioController controller);
+    protected abstract EDataFlow DataFlow { get; }
 
     private void OnListboxItemsRequested(Object sender, ActionEditorListboxItemsRequestedEventArgs e)
     {
@@ -32,22 +29,9 @@ public abstract class AudioSwitchCommandBase : ActionEditorCommand
 
         try
         {
-            var controller = AudioSwitcherPlugin.Controller;
-            if (controller == null)
+            foreach (var device in AudioDeviceManager.GetDevices(this.DataFlow))
             {
-                PluginLog.Error("CoreAudioController is null during device listing.");
-                return;
-            }
-
-            var devices = this.GetDevices(controller);
-            if (devices == null)
-            {
-                return;
-            }
-
-            foreach (var device in devices)
-            {
-                e.AddItem(device.Id.ToString(), device.FullName, device.FullName);
+                e.AddItem(device.Id, device.Name, device.Name);
             }
         }
         catch (Exception ex)
@@ -65,24 +49,12 @@ public abstract class AudioSwitchCommandBase : ActionEditorCommand
 
         try
         {
-            var controller = AudioSwitcherPlugin.Controller;
-            if (controller == null)
+            if (AudioDeviceManager.SetDefault(deviceId))
             {
-                PluginLog.Error("CoreAudioController is null during switch.");
-                return false;
+                return true;
             }
 
-            if (Guid.TryParse(deviceId, out var id))
-            {
-                var device = controller.GetDevice(id);
-                if (device != null)
-                {
-                    device.SetAsDefault();
-                    return true;
-                }
-            }
-            
-            PluginLog.Warning($"Device not found or invalid ID: {deviceId}");
+            PluginLog.Warning($"Device not found or switch failed: {deviceId}");
             return false;
         }
         catch (Exception ex)

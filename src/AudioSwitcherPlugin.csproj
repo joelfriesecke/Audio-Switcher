@@ -30,10 +30,6 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="AudioSwitcher.AudioApi.CoreAudio" Version="3.0.3" />
-  </ItemGroup>
-
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">
     <Message Text="📦 Copying package files..." Importance="High" />
     <ItemGroup>
