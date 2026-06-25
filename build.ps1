@@ -7,8 +7,6 @@ $manifestPath = Join-Path "src" (Join-Path "package" (Join-Path "metadata" "Loup
 $releaseDir = Join-Path "bin" "Release"
 $stagingDir = "dist"
 
-# Read the plugin version from the manifest so the package follows the Marketplace
-# naming convention pluginName_version.lplug4 (e.g. AudioSwitcher_1_1_0.lplug4).
 $versionLine = Select-String -Path $manifestPath -Pattern '^\s*version:\s*(.+?)\s*$' | Select-Object -First 1
 if (-not $versionLine) { Write-Error "Could not read 'version' from $manifestPath"; exit 1 }
 $version = $versionLine.Matches[0].Groups[1].Value.Trim()

@@ -25,7 +25,7 @@ The plugin contributes the following actions (group **Audio**):
 
 ## Installation
 
-1. Download the latest release (`AudioSwitcher_1_1_0.lplug4`) from the
+1. Download the latest release (`AudioSwitcher_1_1_1.lplug4`) from the
    [Releases page](https://github.com/joelfriesecke/audio-switcher/releases).
 2. Double-click the downloaded file. The Loupedeck / Logi software installs the plugin
    automatically.

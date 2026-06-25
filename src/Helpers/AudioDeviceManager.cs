@@ -51,8 +51,6 @@ internal static class AudioDeviceManager
             return false;
         }
 
-        // IPolicyConfig.SetDefaultEndpoint is more reliable from an STA thread; the whole
-        // operation (including enumeration) runs there to keep a single apartment.
         return RunOnStaThread(() =>
         {
             var endpoint = Enumerate(EDataFlow.All)
@@ -106,7 +104,7 @@ internal static class AudioDeviceManager
         IMMDeviceCollection collection = null;
         try
         {
-            enumerator = (IMMDeviceEnumerator)new MMDeviceEnumeratorComObject();
+            enumerator = (IMMDeviceEnumerator)CreateComObject(NativeMethods.CLSID_MMDeviceEnumerator);
             Marshal.ThrowExceptionForHR(enumerator.EnumAudioEndpoints(flow, NativeMethods.DEVICE_STATE_ACTIVE, out collection));
             Marshal.ThrowExceptionForHR(collection.GetCount(out var count));
 
@@ -142,7 +140,7 @@ internal static class AudioDeviceManager
         IMMDevice device = null;
         try
         {
-            enumerator = (IMMDeviceEnumerator)new MMDeviceEnumeratorComObject();
+            enumerator = (IMMDeviceEnumerator)CreateComObject(NativeMethods.CLSID_MMDeviceEnumerator);
 
             var hr = enumerator.GetDefaultAudioEndpoint(flow, ERole.Console, out device);
             if (hr == NativeMethods.E_NOTFOUND || device == null)
@@ -175,9 +173,8 @@ internal static class AudioDeviceManager
         IPolicyConfig policyConfig = null;
         try
         {
-            policyConfig = (IPolicyConfig)new PolicyConfigClientComObject();
+            policyConfig = (IPolicyConfig)CreateComObject(NativeMethods.CLSID_PolicyConfigClient);
 
-            // Console + Multimedia set the default device, Communications the default comms device.
             Marshal.ThrowExceptionForHR(policyConfig.SetDefaultEndpoint(endpointId, ERole.Console));
             Marshal.ThrowExceptionForHR(policyConfig.SetDefaultEndpoint(endpointId, ERole.Multimedia));
             Marshal.ThrowExceptionForHR(policyConfig.SetDefaultEndpoint(endpointId, ERole.Communications));
@@ -225,8 +222,6 @@ internal static class AudioDeviceManager
         }
     }
 
-    // Mirrors AudioSwitcher's Device.Id (the GUID embedded in the endpoint string), so
-    // actions configured with the old library keep resolving without re-configuration.
     private static String ExtractDeviceKey(String endpointId)
     {
         if (String.IsNullOrEmpty(endpointId))
@@ -260,12 +255,12 @@ internal static class AudioDeviceManager
         return result;
     }
 
+    private static Object CreateComObject(Guid clsid) => Activator.CreateInstance(Type.GetTypeFromCLSID(clsid));
+
     private static void Release(Object comObject)
     {
         if (comObject != null && Marshal.IsComObject(comObject))
         {
-            // These RCWs are created locally and never shared, so we hold the only
-            // reference - release it fully rather than just decrementing the count.
             Marshal.FinalReleaseComObject(comObject);
         }
     }

@@ -3,8 +3,6 @@ namespace Loupedeck.AudioSwitcherPlugin;
 using System;
 using System.Runtime.InteropServices;
 
-// vtable method order matches the IDL and is significant - do not reorder.
-
 public enum EDataFlow
 {
     Render = 0,
@@ -32,7 +30,6 @@ internal struct PropertyKey
     }
 }
 
-// Size is pinned to the native 64-bit PROPVARIANT size; only VT_LPWSTR is read.
 [StructLayout(LayoutKind.Explicit, Size = 16)]
 internal struct PropVariant
 {
@@ -122,9 +119,6 @@ internal interface IPropertyStore
     Int32 Commit();
 }
 
-// Undocumented but stable (Windows 7 - 11) interface used to set the default endpoint.
-// The 10 leading methods are placeholders: only their vtable slot count matters so that
-// SetDefaultEndpoint lands on the correct slot. They must never be called.
 [ComImport]
 [Guid("F8679F50-850A-41CF-9C72-430F290290C8")]
 [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -167,24 +161,15 @@ internal interface IPolicyConfig
     Int32 SetEndpointVisibility([MarshalAs(UnmanagedType.LPWStr)] String deviceId, Int32 visible);
 }
 
-[ComImport]
-[Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")]
-internal class MMDeviceEnumeratorComObject
-{
-}
-
-[ComImport]
-[Guid("870AF99C-171D-4F9E-AF0D-E63DF40C2BC9")]
-internal class PolicyConfigClientComObject
-{
-}
-
 internal static class NativeMethods
 {
     public const UInt32 DEVICE_STATE_ACTIVE = 0x00000001;
     public const UInt32 STGM_READ = 0x00000000;
     public const Int32 S_OK = 0;
     public const Int32 E_NOTFOUND = unchecked((Int32)0x80070490);
+
+    public static readonly Guid CLSID_MMDeviceEnumerator = new Guid("BCDE0395-E52F-467C-8E3D-C4579291692E");
+    public static readonly Guid CLSID_PolicyConfigClient = new Guid("870AF99C-171D-4F9E-AF0D-E63DF40C2BC9");
 
     public static readonly PropertyKey PKEY_Device_FriendlyName =
         new PropertyKey(new Guid("a45c254e-df1c-4efd-8020-67d146a850e0"), 14);
