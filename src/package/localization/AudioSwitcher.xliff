@@ -41,12 +41,45 @@
           <source>Switch audio output device</source>
           <target />
         </trans-unit>
+        <trans-unit id="$AudioSwitcher___Loupedeck.AudioSwitcherPlugin.CycleAudioInputCommand" translate="yes">
+          <source>Cycle Audio Input</source>
+          <target />
+        </trans-unit>
+        <trans-unit id="$AudioSwitcher___Loupedeck.AudioSwitcherPlugin.CycleAudioInputCommand###description" translate="yes">
+          <source>Switch to the next audio input device</source>
+          <target />
+        </trans-unit>
+        <trans-unit id="$AudioSwitcher___Loupedeck.AudioSwitcherPlugin.CycleAudioOutputCommand" translate="yes">
+          <source>Cycle Audio Output</source>
+          <target />
+        </trans-unit>
+        <trans-unit id="$AudioSwitcher___Loupedeck.AudioSwitcherPlugin.CycleAudioOutputCommand###description" translate="yes">
+          <source>Switch to the next audio output device</source>
+          <target />
+        </trans-unit>
         <trans-unit id="$AudioSwitcher___#DynamicFolder" translate="yes">
           <source>Dynamic Folder</source>
           <target />
         </trans-unit>
       </group>
-      <group id="@adjustments" />
+      <group id="@adjustments">
+        <trans-unit id="$AudioSwitcher___Loupedeck.AudioSwitcherPlugin.AudioInputAdjustment" translate="yes">
+          <source>Audio Input (Dial)</source>
+          <target />
+        </trans-unit>
+        <trans-unit id="$AudioSwitcher___Loupedeck.AudioSwitcherPlugin.AudioInputAdjustment###description" translate="yes">
+          <source>Cycle audio input device with a dial</source>
+          <target />
+        </trans-unit>
+        <trans-unit id="$AudioSwitcher___Loupedeck.AudioSwitcherPlugin.AudioOutputAdjustment" translate="yes">
+          <source>Audio Output (Dial)</source>
+          <target />
+        </trans-unit>
+        <trans-unit id="$AudioSwitcher___Loupedeck.AudioSwitcherPlugin.AudioOutputAdjustment###description" translate="yes">
+          <source>Cycle audio output device with a dial</source>
+          <target />
+        </trans-unit>
+      </group>
       <group id="@groups">
         <trans-unit id="$AudioSwitcher___GroupName___5A402CE60D4379130005" translate="yes">
           <source>Audio</source>

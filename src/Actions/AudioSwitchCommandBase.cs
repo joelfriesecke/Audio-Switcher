@@ -31,7 +31,7 @@ public abstract class AudioSwitchCommandBase : ActionEditorCommand
         {
             foreach (var device in AudioDeviceManager.GetDevices(this.DataFlow))
             {
-                e.AddItem(device.Id, device.Name, device.Name);
+                e.AddItem(device.Key, device.Name, device.Name);
             }
         }
         catch (Exception ex)

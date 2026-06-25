@@ -18,7 +18,7 @@ description: Switch your Windows default audio device with a single button press
 pluginFileName: AudioSwitcherPlugin.dll
 
 # Plugin version.
-version: 1.0.5
+version: 1.1.0
 
 # Author of the plugin. The author can be a company or an individual developer.
 author: Joel Friesecke
@@ -45,7 +45,11 @@ supportedDevices:
     # Razer Stream Controller, and Razer Stream Controller X.
     - LoupedeckCtFamily
 
+    # LoupedeckExtendedFamily covers the Logitech MX Creative Console family devices.
+    - LoupedeckExtendedFamily
+
     # LoupedeckPlusFamily covers Loupedeck+ device. Uncomment the following line to support Loupedeck+.
+    # NOTE: enable only after testing on real Loupedeck+ hardware.
     #- LoupedeckPlusFamily
 
 # List of plugin capabilities.
@@ -56,7 +60,7 @@ pluginCapabilities:
     # Uncomment the following line if the plugin sends keyboard shortcuts to the target application.
     #- ActivatesApplication
 
-# Minimum Loupedeck version supported by the plugin.
+# Minimum SDK version (Logi Plugin Service / Loupedeck) supported by the plugin.
 minimumLoupedeckVersion: 6.0
 
 

@@ -2,44 +2,46 @@ namespace Loupedeck.AudioSwitcherPlugin;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-internal readonly struct AudioDeviceInfo
-{
-    public AudioDeviceInfo(String id, String name)
-    {
-        this.Id = id;
-        this.Name = name;
-    }
-
-    public String Id { get; }
-
-    public String Name { get; }
-}
+internal readonly record struct AudioDeviceInfo(String Key, String Name);
 
 internal static class AudioDeviceManager
 {
     private static readonly Regex GuidPattern =
         new Regex(@"[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}", RegexOptions.Compiled);
 
+    private readonly record struct Endpoint(String EndpointId, String Key, String Name);
+
     public static IReadOnlyList<AudioDeviceInfo> GetDevices(EDataFlow flow)
     {
-        var result = new List<AudioDeviceInfo>();
         try
         {
-            foreach (var device in Enumerate(flow))
-            {
-                result.Add(new AudioDeviceInfo(device.Key, device.Name));
-            }
+            return Enumerate(flow)
+                .Select(e => new AudioDeviceInfo(e.Key, e.Name))
+                .ToList();
         }
         catch (Exception ex)
         {
             PluginLog.Error(ex, $"Failed to enumerate audio devices: {ex.Message}");
+            return [];
         }
+    }
 
-        return result;
+    public static AudioDeviceInfo? GetDefaultDevice(EDataFlow flow)
+    {
+        try
+        {
+            return GetDefaultEndpoint(flow) is { } e ? new AudioDeviceInfo(e.Key, e.Name) : null;
+        }
+        catch (Exception ex)
+        {
+            PluginLog.Error(ex, $"Failed to get default audio device: {ex.Message}");
+            return null;
+        }
     }
 
     public static Boolean SetDefault(String deviceKey)
@@ -53,20 +55,53 @@ internal static class AudioDeviceManager
         // operation (including enumeration) runs there to keep a single apartment.
         return RunOnStaThread(() =>
         {
-            var endpointId = ResolveEndpointId(deviceKey);
-            if (endpointId == null)
+            var endpoint = Enumerate(EDataFlow.All)
+                .Where(e => String.Equals(e.Key, deviceKey, StringComparison.OrdinalIgnoreCase))
+                .Select(e => (Endpoint?)e)
+                .FirstOrDefault();
+
+            if (endpoint is not { } match)
             {
                 PluginLog.Warning($"No active audio device matches id: {deviceKey}");
                 return false;
             }
 
-            return SetDefaultEndpoint(endpointId);
+            return SetDefaultEndpoint(match.EndpointId);
         });
     }
 
-    private static List<(String EndpointId, String Key, String Name)> Enumerate(EDataFlow flow)
+    public static Boolean CycleInDirection(EDataFlow flow, Int32 direction) =>
+        RunOnStaThread(() =>
+        {
+            var ordered = Enumerate(flow)
+                .OrderBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(e => e.Key, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (ordered.Count == 0)
+            {
+                PluginLog.Warning($"No active audio devices to cycle for flow: {flow}");
+                return false;
+            }
+
+            var currentKey = GetDefaultEndpoint(flow)?.Key;
+            var currentIndex = ordered.FindIndex(
+                e => String.Equals(e.Key, currentKey, StringComparison.OrdinalIgnoreCase));
+            if (currentIndex < 0)
+            {
+                currentIndex = 0;
+            }
+
+            var step = direction >= 0 ? 1 : -1;
+            var nextIndex = ((currentIndex + step) % ordered.Count + ordered.Count) % ordered.Count;
+            return SetDefaultEndpoint(ordered[nextIndex].EndpointId);
+        });
+
+    public static Boolean CycleToNext(EDataFlow flow) => CycleInDirection(flow, 1);
+
+    private static List<Endpoint> Enumerate(EDataFlow flow)
     {
-        var devices = new List<(String, String, String)>();
+        List<Endpoint> devices = [];
         IMMDeviceEnumerator enumerator = null;
         IMMDeviceCollection collection = null;
         try
@@ -81,16 +116,10 @@ internal static class AudioDeviceManager
                 try
                 {
                     Marshal.ThrowExceptionForHR(collection.Item(i, out device));
-                    Marshal.ThrowExceptionForHR(device.GetId(out var endpointId));
-
-                    var key = ExtractDeviceKey(endpointId);
-                    if (key == null)
+                    if (ReadEndpoint(device) is { } endpoint)
                     {
-                        continue;
+                        devices.Add(endpoint);
                     }
-
-                    var name = GetFriendlyName(device) ?? endpointId;
-                    devices.Add((endpointId, key, name));
                 }
                 finally
                 {
@@ -107,17 +136,38 @@ internal static class AudioDeviceManager
         return devices;
     }
 
-    private static String ResolveEndpointId(String deviceKey)
+    private static Endpoint? GetDefaultEndpoint(EDataFlow flow)
     {
-        foreach (var device in Enumerate(EDataFlow.All))
+        IMMDeviceEnumerator enumerator = null;
+        IMMDevice device = null;
+        try
         {
-            if (String.Equals(device.Key, deviceKey, StringComparison.OrdinalIgnoreCase))
-            {
-                return device.EndpointId;
-            }
-        }
+            enumerator = (IMMDeviceEnumerator)new MMDeviceEnumeratorComObject();
 
-        return null;
+            var hr = enumerator.GetDefaultAudioEndpoint(flow, ERole.Console, out device);
+            if (hr == NativeMethods.E_NOTFOUND || device == null)
+            {
+                return null;
+            }
+
+            Marshal.ThrowExceptionForHR(hr);
+            return ReadEndpoint(device);
+        }
+        finally
+        {
+            Release(device);
+            Release(enumerator);
+        }
+    }
+
+    private static Endpoint? ReadEndpoint(IMMDevice device)
+    {
+        Marshal.ThrowExceptionForHR(device.GetId(out var endpointId));
+
+        var key = ExtractDeviceKey(endpointId);
+        return key == null
+            ? null
+            : new Endpoint(endpointId, key, GetFriendlyName(device) ?? endpointId);
     }
 
     private static Boolean SetDefaultEndpoint(String endpointId)

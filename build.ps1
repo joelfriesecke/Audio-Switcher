@@ -3,9 +3,17 @@ $ErrorActionPreference = "Stop"
 # Configuration
 $pluginName = "AudioSwitcher"
 $projectPath = Join-Path "src" "AudioSwitcherPlugin.csproj"
+$manifestPath = Join-Path "src" (Join-Path "package" (Join-Path "metadata" "LoupedeckPackage.yaml"))
 $releaseDir = Join-Path "bin" "Release"
 $stagingDir = "dist"
-$outputPackage = "${pluginName}.lplug4"
+
+# Read the plugin version from the manifest so the package follows the Marketplace
+# naming convention pluginName_version.lplug4 (e.g. AudioSwitcher_1_1_0.lplug4).
+$versionLine = Select-String -Path $manifestPath -Pattern '^\s*version:\s*(.+?)\s*$' | Select-Object -First 1
+if (-not $versionLine) { Write-Error "Could not read 'version' from $manifestPath"; exit 1 }
+$version = $versionLine.Matches[0].Groups[1].Value.Trim()
+$versionTag = $version -replace '\.', '_'
+$outputPackage = "${pluginName}_${versionTag}.lplug4"
 
 # 0. Prerequisites
 Write-Host "`n=== Checking Prerequisites ===" -ForegroundColor Cyan
@@ -18,7 +26,7 @@ $dirsToClean = @("bin", "obj", $stagingDir, "src/bin", "src/obj")
 foreach ($dir in $dirsToClean) {
     if (Test-Path $dir) { Remove-Item $dir -Recurse -Force }
 }
-if (Test-Path $outputPackage) { Remove-Item $outputPackage -Force }
+Get-ChildItem -Path . -Filter "${pluginName}*.lplug4" -File -ErrorAction SilentlyContinue | Remove-Item -Force
 
 # 2. Build
 Write-Host "`n=== Building Project ===" -ForegroundColor Cyan

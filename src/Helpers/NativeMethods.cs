@@ -184,6 +184,7 @@ internal static class NativeMethods
     public const UInt32 DEVICE_STATE_ACTIVE = 0x00000001;
     public const UInt32 STGM_READ = 0x00000000;
     public const Int32 S_OK = 0;
+    public const Int32 E_NOTFOUND = unchecked((Int32)0x80070490);
 
     public static readonly PropertyKey PKEY_Device_FriendlyName =
         new PropertyKey(new Guid("a45c254e-df1c-4efd-8020-67d146a850e0"), 14);

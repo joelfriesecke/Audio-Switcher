@@ -1,24 +1,36 @@
-MIT License (Modified)
+Audio Switcher Plugin — End User License Agreement (EULA)
 
-Copyright (c) 2026 Joel Friesecke
+Copyright (c) 2026 Joel Friesecke. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, and/or distribute copies of the Software,
-subject to the following conditions:
+This is a proprietary license. The Audio Switcher plugin (the "Software") is
+licensed, not sold, to you for use only under the terms of this agreement.
 
-1.  **Non-Commercial Use Only**: The Software may not be used for commercial purposes.
-2.  **No Sublicensing**: You may not sublicense the Software.
-3.  **No Selling**: You may not sell the Software or any work derived from it.
+1. Grant of License
+   You are granted a non-exclusive, non-transferable license to install and use
+   the Software for personal, non-commercial purposes.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+2. Restrictions
+   You may NOT:
+   a) use the Software for any commercial purpose;
+   b) sell, rent, lease, or otherwise charge for the Software or any work
+      derived from it;
+   c) sublicense, redistribute, or relicense the Software;
+   d) distribute modified versions of the Software, whether commercially or
+      otherwise.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+3. Reservation of Rights
+   All rights not expressly granted to you are reserved by the copyright holder.
+
+4. Disclaimer of Warranty
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+5. Limitation of Liability
+   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+   OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+   OR OTHER DEALINGS IN THE SOFTWARE.
+
+Note: This plugin is a community project and is not affiliated with, endorsed
+by, or sponsored by Logitech or Loupedeck.
